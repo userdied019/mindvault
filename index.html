@@ -37,7 +37,7 @@ body {
   width: 90%;
   max-width: 380px;
   border-radius: 20px;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.6);
   text-align: center;
 }
 
@@ -49,13 +49,13 @@ h1 {
   display: flex;
   justify-content: space-between;
   margin: 10px 0;
+  font-size: 14px;
 }
 
 #numberBox {
   font-size: 48px;
   margin: 20px 0;
   min-height: 60px;
-  animation: fade 0.4s ease;
 }
 
 input {
@@ -84,7 +84,6 @@ button {
 .options {
   display: flex;
   gap: 10px;
-  margin-top: 10px;
 }
 
 .options button {
@@ -97,11 +96,6 @@ button {
   font-weight: bold;
 }
 
-@keyframes fade {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
 /* POPUP */
 .popup {
   position: fixed;
@@ -110,15 +104,22 @@ button {
   display: none;
   justify-content: center;
   align-items: center;
+  z-index: 1000;
 }
 
 .popup-content {
   background: var(--card);
+  color: var(--text);
   padding: 20px;
   border-radius: 16px;
   width: 90%;
-  max-width: 320px;
-  text-align: left;
+  max-width: 360px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+}
+
+.popup-content h2,
+.popup-content h4 {
+  margin-top: 0;
 }
 </style>
 </head>
@@ -146,20 +147,31 @@ button {
     <button onclick="toggleTheme()">🌗 Theme</button>
   </div>
 
-  <button onclick="openHelp()">ℹ How to Play</button>
+  <button onclick="openInfo()">ℹ About & How to Play</button>
 </div>
 
-<!-- HELP POPUP -->
-<div class="popup" id="help">
+<!-- POPUP -->
+<div class="popup" id="infoPopup">
   <div class="popup-content">
-    <h3>How to Play</h3>
-    <ul>
-      <li>A number appears for a moment</li>
-      <li>Remember it carefully</li>
+    <h2>🧠 MindVault+</h2>
+
+    <h4>About the Game</h4>
+    <p>
+      MindVault+ is a memory-based brain training game designed to improve
+      focus, attention, and short-term memory. Each level challenges you
+      with longer number sequences.
+    </p>
+
+    <h4>How to Play</h4>
+    <ol>
+      <li>Click <b>Start</b> to begin</li>
+      <li>A number appears briefly</li>
+      <li>Memorize the number</li>
       <li>Type it correctly to level up</li>
-      <li>Each level adds more digits</li>
-    </ul>
-    <button onclick="closeHelp()">Got it!</button>
+      <li>Each level increases difficulty</li>
+    </ol>
+
+    <button onclick="closeInfo()">Close</button>
   </div>
 </div>
 
@@ -167,6 +179,7 @@ button {
 let level = 1;
 let answer = "";
 let best = localStorage.getItem("mindvault_best") || 0;
+
 document.getElementById("best").innerText = best;
 
 function start() {
@@ -190,20 +203,24 @@ function start() {
 
 function check() {
   const input = document.getElementById("userInput").value;
+  const msg = document.getElementById("message");
+
   if (input === answer) {
     level++;
     document.getElementById("level").innerText = level;
-    document.getElementById("message").innerText = "✅ Correct!";
-    document.getElementById("message").style.color = "lime";
+    msg.innerText = "✅ Correct!";
+    msg.style.color = "lime";
     setTimeout(start, 800);
   } else {
-    document.getElementById("message").innerText = "❌ Game Over!";
-    document.getElementById("message").style.color = "red";
+    msg.innerText = "❌ Game Over!";
+    msg.style.color = "red";
+
     if (level - 1 > best) {
       best = level - 1;
       localStorage.setItem("mindvault_best", best);
       document.getElementById("best").innerText = best;
     }
+
     level = 1;
     document.getElementById("level").innerText = level;
   }
@@ -214,18 +231,19 @@ function resetGame() {
   document.getElementById("level").innerText = level;
   document.getElementById("numberBox").innerText = "?";
   document.getElementById("userInput").value = "";
+  document.getElementById("message").innerText = "";
 }
 
 function toggleTheme() {
   document.body.classList.toggle("light");
 }
 
-function openHelp() {
-  document.getElementById("help").style.display = "flex";
+function openInfo() {
+  document.getElementById("infoPopup").style.display = "flex";
 }
 
-function closeHelp() {
-  document.getElementById("help").style.display = "none";
+function closeInfo() {
+  document.getElementById("infoPopup").style.display = "none";
 }
 </script>
 
