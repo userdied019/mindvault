@@ -1,95 +1,124 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-
-<!-- ✅ MOBILE SUPPORT -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>MindVault – Memory Game</title>
-
-<!-- ✅ PWA MANIFEST -->
-<link rel="manifest" href="manifest.json">
+<title>MindVault+</title>
 
 <style>
-body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: linear-gradient(135deg, #0f172a, #020617);
-    color: white;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
+:root {
+  --bg: #0f172a;
+  --card: #020617;
+  --text: #ffffff;
+  --accent: #38bdf8;
 }
 
-/* ✅ MOBILE FRIENDLY CARD */
+.light {
+  --bg: #f8fafc;
+  --card: #ffffff;
+  --text: #020617;
+  --accent: #2563eb;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .card {
-    background: #020617;
-    padding: 25px;
-    width: 90%;
-    max-width: 360px;
-    border-radius: 16px;
-    text-align: center;
-    box-shadow: 0 15px 30px rgba(0,0,0,0.6);
+  background: var(--card);
+  padding: 24px;
+  width: 90%;
+  max-width: 380px;
+  border-radius: 20px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+  text-align: center;
 }
 
 h1 {
-    margin-bottom: 5px;
+  margin: 0;
 }
 
-.stats {
-    display: flex;
-    justify-content: space-between;
-    font-size: 14px;
+.top {
+  display: flex;
+  justify-content: space-between;
+  margin: 10px 0;
 }
 
 #numberBox {
-    font-size: 48px;
-    margin: 20px 0;
-    height: 60px;
+  font-size: 48px;
+  margin: 20px 0;
+  min-height: 60px;
+  animation: fade 0.4s ease;
 }
 
 input {
-    padding: 12px;
-    width: 100%;
-    border-radius: 10px;
-    border: none;
-    margin-bottom: 12px;
-    text-align: center;
-    font-size: 18px;
+  width: 100%;
+  padding: 12px;
+  border-radius: 12px;
+  border: none;
+  font-size: 18px;
+  text-align: center;
+  margin-bottom: 10px;
 }
 
 button {
-    width: 100%;
-    padding: 12px;
-    border: none;
-    border-radius: 10px;
-    background: #38bdf8;
-    color: black;
-    font-weight: bold;
-    font-size: 16px;
-    cursor: pointer;
+  width: 100%;
+  padding: 12px;
+  border-radius: 12px;
+  border: none;
+  font-size: 16px;
+  font-weight: bold;
+  margin: 6px 0;
+  cursor: pointer;
+  background: var(--accent);
+  color: white;
 }
 
-button:hover {
-    background: #0ea5e9;
+.options {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.options button {
+  flex: 1;
+  font-size: 14px;
 }
 
 #message {
-    margin-top: 10px;
-    font-weight: bold;
-}
-
-/* ✅ SMOOTH ANIMATION */
-.fade {
-    animation: fade 0.4s ease-in;
+  margin-top: 8px;
+  font-weight: bold;
 }
 
 @keyframes fade {
-    from { opacity: 0; }
-    to { opacity: 1; }
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* POPUP */
+.popup {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  display: none;
+  justify-content: center;
+  align-items: center;
+}
+
+.popup-content {
+  background: var(--card);
+  padding: 20px;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 320px;
+  text-align: left;
 }
 </style>
 </head>
@@ -97,78 +126,108 @@ button:hover {
 <body>
 
 <div class="card">
-    <h1>🧠 MindVault</h1>
+  <h1>🧠 MindVault+</h1>
 
-    <div class="stats">
-        <span>Level: <b id="level">1</b></span>
-        <span>Best: <b id="best">0</b></span>
-    </div>
+  <div class="top">
+    <span>Level: <b id="level">1</b></span>
+    <span>Best: <b id="best">0</b></span>
+  </div>
 
-    <div id="numberBox">?</div>
+  <div id="numberBox">?</div>
 
-    <input type="number" id="userInput" placeholder="Enter number" disabled>
-    <button onclick="submitAnswer()">Submit</button>
+  <input id="userInput" placeholder="Enter number" disabled>
+  <button onclick="check()">Submit</button>
 
-    <div id="message"></div>
+  <div id="message"></div>
+
+  <div class="options">
+    <button onclick="start()">▶ Start</button>
+    <button onclick="resetGame()">🔄 Reset</button>
+    <button onclick="toggleTheme()">🌗 Theme</button>
+  </div>
+
+  <button onclick="openHelp()">ℹ How to Play</button>
+</div>
+
+<!-- HELP POPUP -->
+<div class="popup" id="help">
+  <div class="popup-content">
+    <h3>How to Play</h3>
+    <ul>
+      <li>A number appears for a moment</li>
+      <li>Remember it carefully</li>
+      <li>Type it correctly to level up</li>
+      <li>Each level adds more digits</li>
+    </ul>
+    <button onclick="closeHelp()">Got it!</button>
+  </div>
 </div>
 
 <script>
 let level = 1;
 let answer = "";
-let best = localStorage.getItem("bestScore") || 0;
+let best = localStorage.getItem("mindvault_best") || 0;
 document.getElementById("best").innerText = best;
 
-function startRound() {
-    document.getElementById("userInput").value = "";
-    document.getElementById("userInput").disabled = true;
-    document.getElementById("message").innerText = "";
+function start() {
+  document.getElementById("message").innerText = "";
+  document.getElementById("userInput").value = "";
+  document.getElementById("userInput").disabled = true;
 
-    let digits = level + 1;
-    answer = "";
+  answer = "";
+  for (let i = 0; i < level + 1; i++) {
+    answer += Math.floor(Math.random() * 10);
+  }
 
-    for (let i = 0; i < digits; i++) {
-        answer += Math.floor(Math.random() * 10);
-    }
+  document.getElementById("numberBox").innerText = answer;
 
-    const box = document.getElementById("numberBox");
-    box.innerText = answer;
-    box.classList.add("fade");
-
-    setTimeout(() => {
-        box.innerText = "?";
-        document.getElementById("userInput").disabled = false;
-        document.getElementById("userInput").focus();
-    }, 1500);
+  setTimeout(() => {
+    document.getElementById("numberBox").innerText = "?";
+    document.getElementById("userInput").disabled = false;
+    document.getElementById("userInput").focus();
+  }, 1500);
 }
 
-function submitAnswer() {
-    const input = document.getElementById("userInput").value;
-    const msg = document.getElementById("message");
-
-    if (input === answer) {
-        level++;
-        document.getElementById("level").innerText = level;
-        msg.innerText = "✅ Correct!";
-        msg.style.color = "lime";
-        setTimeout(startRound, 800);
-    } else {
-        msg.innerText = "❌ Game Over!";
-        msg.style.color = "red";
-
-        if (level - 1 > best) {
-            best = level - 1;
-            localStorage.setItem("bestScore", best);
-            document.getElementById("best").innerText = best;
-        }
-
-        level = 1;
-        document.getElementById("level").innerText = level;
+function check() {
+  const input = document.getElementById("userInput").value;
+  if (input === answer) {
+    level++;
+    document.getElementById("level").innerText = level;
+    document.getElementById("message").innerText = "✅ Correct!";
+    document.getElementById("message").style.color = "lime";
+    setTimeout(start, 800);
+  } else {
+    document.getElementById("message").innerText = "❌ Game Over!";
+    document.getElementById("message").style.color = "red";
+    if (level - 1 > best) {
+      best = level - 1;
+      localStorage.setItem("mindvault_best", best);
+      document.getElementById("best").innerText = best;
     }
+    level = 1;
+    document.getElementById("level").innerText = level;
+  }
 }
 
-startRound();
+function resetGame() {
+  level = 1;
+  document.getElementById("level").innerText = level;
+  document.getElementById("numberBox").innerText = "?";
+  document.getElementById("userInput").value = "";
+}
+
+function toggleTheme() {
+  document.body.classList.toggle("light");
+}
+
+function openHelp() {
+  document.getElementById("help").style.display = "flex";
+}
+
+function closeHelp() {
+  document.getElementById("help").style.display = "none";
+}
 </script>
 
 </body>
 </html>
-
